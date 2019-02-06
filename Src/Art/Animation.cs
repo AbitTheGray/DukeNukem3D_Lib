@@ -11,7 +11,7 @@ namespace DukeNukem3D.Art
         public readonly int Stored;
 
         /// <summary>
-        /// 6 bit signed integer<br>
+        /// 6 bit signed integer<br/>
         /// bits 0-6
         /// </summary>
         public byte NumberOfFrames
@@ -25,7 +25,7 @@ namespace DukeNukem3D.Art
             }
         }
         /// <summary>
-        /// 2 bit signed integer<br>
+        /// 2 bit signed integer<br/>
         /// bits 6-7
         /// </summary>
         public AnimationType Type
@@ -39,7 +39,7 @@ namespace DukeNukem3D.Art
             }
         }
         /// <summary>
-        /// 8 bit signed integer<br>
+        /// 8 bit signed integer<br/>
         /// bits 8-15
         /// </summary>
         public sbyte CenterOffsetX
@@ -53,7 +53,7 @@ namespace DukeNukem3D.Art
             }
         }
         /// <summary>
-        /// 8 bit signed integer<br>
+        /// 8 bit signed integer<br/>
         /// bits 16-23
         /// </summary>
         public sbyte CenterOffsetY
@@ -67,7 +67,7 @@ namespace DukeNukem3D.Art
             }
         }
         /// <summary>
-        /// 4 bit unsigned integer<br>
+        /// 4 bit unsigned integer<br/>
         /// bits 24-27
         /// </summary>
         public byte AnimationSpeed
@@ -81,7 +81,7 @@ namespace DukeNukem3D.Art
             }
         }
         /// <summary>
-        /// 4 bit<br>
+        /// 4 bit<br/>
         /// bits 28-31
         /// </summary>
         public byte Unused

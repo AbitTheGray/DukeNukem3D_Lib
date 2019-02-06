@@ -12,7 +12,7 @@ namespace DukeNukem3D.Art
 
         #region Parsing
 
-        public static ArtFile[] ParseAllFilesInDirectory(string path)
+        public static ArtFile[] ParseAllFilesInDirectory(string path, PaletteFile palette = null)
         {
             if (!Directory.Exists(path))
                 return null;
@@ -31,7 +31,7 @@ namespace DukeNukem3D.Art
 
                 using (var reader = new BinaryReader(File.OpenRead(filePath)))
                 {
-                    var art = Parse(reader, fileId);
+                    var art = Parse(reader, fileId, palette);
                     if (art != null)
                         files.Add(art);
                 }
@@ -39,7 +39,7 @@ namespace DukeNukem3D.Art
 
             return files.ToArray();
         }
-        public static ArtFile Parse(string path)
+        public static ArtFile Parse(string path, PaletteFile palette = null)
         {
             if (!File.Exists(path))
                 return null;
@@ -50,20 +50,20 @@ namespace DukeNukem3D.Art
 
             using (var reader = new BinaryReader(File.OpenRead(path)))
             {
-                return Parse(reader);
+                return Parse(reader, id, palette);
             }
         }
-        public static ArtFile Parse(string path, int fileID)
+        public static ArtFile Parse(string path, int fileID, PaletteFile palette = null)
         {
             if (!File.Exists(path))
                 return null;
 
             using (var reader = new BinaryReader(File.OpenRead(path)))
             {
-                return Parse(reader, fileID);
+                return Parse(reader, fileID, palette);
             }
         }
-        public static ArtFile Parse(BinaryReader reader, int fileID = 0)
+        public static ArtFile Parse(BinaryReader reader, int fileID = 0, PaletteFile palette = null)
         {
             int version = reader.ReadInt32();
 
@@ -98,15 +98,12 @@ namespace DukeNukem3D.Art
 
                             var texture = new Texture(tileWidth[i], tileHeight[i], animations[i], textureID: i + localTileStart, textureIDInFile: i, fileID: fileID);
 
-#if DEBUG_TO_ERROR
-                            Console.Error.WriteLine("{0} ({1}) - {2}x{3}, frames: {4}", i+localTileStart, i, texture.Width, texture.Height, texture.Animation.Stored);
-                            //Console.Error.WriteLine("{0}x{1}", texture.Width, texture.Height);
-#endif
-
                             for (int x = 0; x < texture.Width; x++)
                                 for (int y = 0; y < texture.Height; y++)
                                     texture.Indexes[x, y] = reader.ReadByte();
 
+                            texture.Palette = palette;
+                            
                             file.Textures[i] = texture;
                         }
 

@@ -53,7 +53,7 @@ namespace DukeNukem3D.Grp
 
         public void Save(BinaryWriter writer)
         {
-            WriteCString(writer, 12, Filename);
+            CString.WriteCString(writer, 12, Filename);
             writer.Write((int)FileCount);
             writer.Flush();
 
@@ -86,7 +86,7 @@ namespace DukeNukem3D.Grp
         public static Grp Parse(BinaryReader reader)
         {
             //first 12 bytes for name (author?)
-            string filename = ReadCStringShort(reader, 12);
+            string filename = CString.ReadCStringShort(reader, 12);
             //followed by 4 bytes for count
             int count = reader.ReadInt32();
 
@@ -108,58 +108,63 @@ namespace DukeNukem3D.Grp
 
         #endregion
 
-        #region CString
-
-        public static string ReadCString(BinaryReader reader, int length)
+        public sealed class GrpFile
         {
-            byte[] bytes = new byte[length];
-            reader.Read(bytes, 0, length);
-
-            //Replace all bytes after first '\0' char
+            /// <summary>
+            /// Fixed length: 12
+            /// </summary>
+            public string Filename
             {
-                int nullIndex;
-                for (nullIndex = 0; nullIndex < length; nullIndex++)
-                    if (bytes[nullIndex] == 0)
-                        break;
-
-                for (; nullIndex < length; nullIndex++)
-                    bytes[nullIndex] = 0;
+                get;
             }
 
-            return Encoding.ASCII.GetString(bytes);
-        }
-        public static string ReadCStringShort(BinaryReader reader, int length)
-        {
-            byte[] bytes = new byte[length];
-            reader.Read(bytes, 0, length);
-
-            //Get index of first '\0' char
-            int nullIndex;
-            for (nullIndex = 0; nullIndex < length; nullIndex++)
-                if (bytes[nullIndex] == 0)
-                    break;
-
-            return Encoding.ASCII.GetString(bytes, 0, nullIndex);
-        }
-
-        public static void WriteCString(BinaryWriter writer, int length, string str)
-        {
-            if (string.IsNullOrEmpty(str))
+            /// <summary>
+            /// Size of file in bytes
+            /// </summary>
+            public int FileSize
             {
-                for (int i = 0; i < length; i++)
-                    writer.Write((byte)0);
+                get;
             }
-            else
+
+            /// <summary>
+            /// Raw file data
+            /// </summary>
+            public byte[] FileRawData
             {
-                for (int i = 0; i < str.Length - 1; i++)
-                    writer.Write((byte)str[i]);
-
-                for (int i = str.Length - 1; i < length; i++)
-                    writer.Write((byte)0);
+                get;
             }
+
+            public GrpFile(string filename, int rawCount)
+            {
+                if (Encoding.ASCII.GetByteCount(filename) > 12)
+                    throw new ArgumentOutOfRangeException(nameof(filename));
+                this.Filename = filename;
+
+                this.FileSize = rawCount;
+                this.FileRawData = new byte[rawCount];
+            }
+
+            public void SaveFileHeader(BinaryWriter writer)
+            {
+                CString.WriteCString(writer, 12, Filename);
+                writer.Write((int)this.FileSize);
+                writer.Flush();
+            }
+
+            #region Static
+
+            public static GrpFile ParseFileHeader(BinaryReader reader)
+            {
+                //first 12 bytes for filename
+                string filename = CString.ReadCStringShort(reader, 12);
+
+                //followed by 4 bytes for size
+                int rawSize = reader.ReadInt32();
+
+                return new GrpFile(filename, rawSize);
+            }
+
+            #endregion
         }
-
-        #endregion
-
     }
 }
